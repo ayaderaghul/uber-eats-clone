@@ -2,10 +2,30 @@ const Restaurant = require('../models/Restaurant')
 const MenuItem = require('../models/MenuItem')
 const redis = require('../config/redis')
 const CacheService = require('../services/cacheService')
+const {producer} = require('../config/kafka')
+
+
+
 exports.createRestaurant = async(req,res) =>{
     try{
         const data = { ...req.body, owner: req.user.id}
         const restaurant = await Restaurant.create(data)
+        
+        await producer.connect()
+        await producer.send({
+            topic: 'restaurant-events',
+            messages: [
+                {
+                    key: 'restaurant-created',
+                    value: JSON.stringify({
+                        id: restaurant._id,
+                        name: restaurant.name,
+                        timestamp: Date.now()
+                    })
+                }
+            ]
+        })
+        
         res.status(201).json(restaurant)
     }catch(err){
         res.status(500).json({message: err.message})
