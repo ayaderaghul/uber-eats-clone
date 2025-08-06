@@ -44,13 +44,13 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/ubereats
 JWT_SECRET=your_secret_key
 REDIS_URL=redis://localhost:6379
-
 ```
 
 4. **Run server**
 
 ```bash
-npm run dev```
+npm run dev
+```
 
 ##📌 API Endpoints
 Restaurants
