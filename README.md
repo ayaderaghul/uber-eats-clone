@@ -28,17 +28,24 @@ A Uber Eats–style backend built with **Node.js, Express, MongoDB, and Redis ca
 1. **Clone repository**
 ```bash
 git clone https://github.com/ayaderaghul/uber-eats-clone.git
-cd uber-eats-clone```
+cd uber-eats-clone
+```
+
+
 2. **Install dependencies**
 
 ```bash
-npm install```
+npm install
+```
+
 3. **Set environment variables (.env)**
 ```.env
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/ubereats
 JWT_SECRET=your_secret_key
-REDIS_URL=redis://localhost:6379```
+REDIS_URL=redis://localhost:6379
+
+```
 
 4. **Run server**
 
@@ -47,6 +54,7 @@ npm run dev```
 
 ##📌 API Endpoints
 Restaurants
+
 ```
 POST /api/restaurants (protected) → Create restaurant
 PUT /api/restaurants/:id (protected) → Update restaurant
@@ -56,10 +64,12 @@ GET /api/restaurants/nearby?lat=..&lng=..&radius=.. → Nearby search (cached)
 GET /api/restaurants/:id → Get restaurant by ID (cached)
 GET /api/restaurants/:id/menu → Get restaurant menu (cached)
 ```
+
 Users
 MenuItems
 
 ## 📂 Project Structure
+
 ```
 src/
 │── config/
