@@ -1,4 +1,6 @@
 const express= require('express')
+
+
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const dotenv=require('dotenv')
@@ -19,6 +21,7 @@ app.use('/api/restaurants', require('./routes/restaurantRoutes.js'))
 app.use('/api/menu-items', require('./routes/menuItemRoutes.js'))
 app.use('/admin', require('./routes/adminRoutes.js'))
 app.use('/api/orders', require('./routes/orderRoutes.js'))
+app.use('/api/drivers', require('./routes/driverGetNotifs.js'))
 
 app.get('/',(req,res) =>{
     res.send('uber eats api running..')

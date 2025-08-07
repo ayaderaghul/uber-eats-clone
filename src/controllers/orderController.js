@@ -1,9 +1,10 @@
 const {producer} = require('../config/kafka')
+const rabbitmq = require('../config/rabbitmq')
 const {KAFKA_TOPICS} = require('../config/constants')
 const Order = require('../models/Order')
 const Restaurant = require('../models/Restaurant')
 const User = require('../models/User')
-
+const {findDriver, notifyDrivers} = require('../services/driverService')
 const CacheService = require('../services/cacheService')
 
 const OrderEvents = {
@@ -32,7 +33,21 @@ const publishOrderEvent = async(eventType, order, metadata = {} ) => {
             })
         }]
     })
-}
+
+    // Publish to RabbitMQ for driver workflow if order is created
+        if (eventType === OrderEvents.CREATED) {
+            await rabbitmq.publish(
+                rabbitmq.exchanges.ORDER_EVENTS, // Use exchange instead of queue
+                '', // Empty routing key for fanout
+                { 
+                    orderId: order._id,
+                    restaurantLocation: order.location,
+                    deliveryLocation: order.user?.location
+                },
+                { persistent: true }
+            );
+        }
+};
 
 exports.createOrder = async(req,res) =>{
     try {
@@ -67,60 +82,57 @@ exports.createOrder = async(req,res) =>{
 
 
         await publishOrderEvent(OrderEvents.CREATED, order)
-
-        assignDriverToOrder(order._id).catch(console.error)
-
         res.status(201).json(order)
-
     }catch(err){
         res.status(500).json({message: err.message})
     }
 }
 
-async function assignDriverToOrder(orderId){
-    const order = await Order.findById(orderId).populate('user')
-    if(!order || order.status !== 'pending') return 
-    const coords = order?.user?.location?.coordinates;
+// async function assignDriverToOrder(orderId){
+//     const order = await Order.findById(orderId).populate('user')
+//     if(!order || order.status !== 'pending') return 
+//     const coords = order?.user?.location?.coordinates;
 
-    if (!coords || coords.length !== 2) {
-      console.error("Missing or invalid user coordinates");
-      return;
-    }
-    const driver = await User.findOne({
-        status: 'available',
-        'location' : {
-            $near: {
-                $geometry: {
-                    type: 'Point',
-                    coordinates: order.user?.location?.coordinates
-                },
-                $maxDistance: 5000 // 5km radius
-            }
-        }
-    })
+//     if (!coords || coords.length !== 2) {
+//       console.error("Missing or invalid user coordinates");
+//       return;
+//     }
+//     const driver = await User.findOne({
+//         status: 'available',
+//         'location' : {
+//             $near: {
+//                 $geometry: {
+//                     type: 'Point',
+//                     coordinates: order.user?.location?.coordinates
+//                 },
+//                 $maxDistance: 5000 // 5km radius
+//             }
+//         }
+//     })
 
-    if(driver) {
-        order.driver = driver._id
-        order.status = 'accepted'
-        await order.save()
-        await CacheService.getOrSetAutoHotness(
-            `order:${order._id}`,
-            1800, // default 30 min
-            // TODO CAREFUL WITH AWAIT HERE
-            () => console.log('this function also do nothing')
-        )
-        await Promise.all([
-            publishOrderEvent(OrderEvents.DRIVER_ASSIGNED, order, { driverId: driver._id }),
-            publishOrderEvent(OrderEvents.STATUS_CHANGED, order)
-            ]);
+//     if(driver) {
+//         order.driver = driver._id
+//         order.status = 'accepted'
+//         await order.save()
+//         await CacheService.getOrSetAutoHotness(
+//             `order:${order._id}`,
+//             1800, // default 30 min
+//             // TODO CAREFUL WITH AWAIT HERE
+//             () => console.log('this function also do nothing')
+//         )
+//         await Promise.all([
+//             publishOrderEvent(OrderEvents.DRIVER_ASSIGNED, order, { driverId: driver._id }),
+//             publishOrderEvent(OrderEvents.STATUS_CHANGED, order)
+//             ]);
 
-            // Notify driver (via WebSocket or push notification)
-            // notifyDriver(driver._id, order._id);
+//             // Notify driver (via WebSocket or push notification)
+//             // notifyDriver(driver._id, order._id);
 
 
         
-    }
-}
+//     }
+// }
+
 
 
 exports.getOrderById = async (req, res) => {
