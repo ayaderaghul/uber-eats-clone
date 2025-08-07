@@ -13,6 +13,8 @@ A Uber Eats–style backend built with **Node.js, Express, MongoDB, and Redis ca
   - Dynamic hot/cold TTL via `CacheService.getOrSetAutoHotness`
   - Automatic cache invalidation on updates/deletes
 - **Admin Cache Dashboard**
+- **Add RabbitMQ** for sending order_created to nearby drivers, who accepts first gets the order
+- Add **Kafka** to send message after restaurant created and order accepted by driver
 
 ---
 
