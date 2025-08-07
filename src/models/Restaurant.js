@@ -16,11 +16,7 @@ const restaurantSchema = new mongoose.Schema({
     type: String, // e.g., "Italian", "Fast Food", "Japanese"
     required: true
   },
-  address: {
-    street: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String },
-    zipCode: { type: String },
+  location: {
     coordinates: {
       type: {
         type: String,
@@ -33,20 +29,11 @@ const restaurantSchema = new mongoose.Schema({
       }
     }
   },
-  phone: {
-    type: String
-  },
+  
   imageUrl: {
     type: String
   },
-  rating: {
-    average: { type: Number, default: 0 },
-    count: { type: Number, default: 0 }
-  },
-  isOpen: {
-    type: Boolean,
-    default: true
-  },
+  
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User", // Restaurant owner

@@ -5,6 +5,7 @@ const {
     updateRestaurant,
     deleteRestaurant,
     getAllRestaurants,
+        getAllRestaurantsWithoutRedis,
     getRestaurantById,
     getMenuByRestaurant,
     getNearbyRestaurants
@@ -20,6 +21,8 @@ router.put('/:id', protect, updateRestaurant)
 router.delete('/:id', protect, deleteRestaurant)
 
 router.get('/', getAllRestaurants)
+router.get('/without-redis', getAllRestaurantsWithoutRedis)
+
 router.get('/nearby', getNearbyRestaurants) // ?lat=..&lng=..&radius=..
 
 router.get('/:id', getRestaurantById)

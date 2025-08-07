@@ -18,7 +18,7 @@ app.use('/api/auth', require('./routes/authRoutes'))
 app.use('/api/restaurants', require('./routes/restaurantRoutes.js'))
 app.use('/api/menu-items', require('./routes/menuItemRoutes.js'))
 app.use('/admin', require('./routes/adminRoutes.js'))
-
+app.use('/api/orders', require('./routes/orderRoutes.js'))
 
 app.get('/',(req,res) =>{
     res.send('uber eats api running..')

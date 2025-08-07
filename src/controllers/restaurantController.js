@@ -85,6 +85,15 @@ exports.getAllRestaurants = async(req,res) =>{
     }
 }
 
+exports.getAllRestaurantsWithoutRedis = async(req,res) =>{
+    try{
+        const restaurants = await Restaurant.find()
+        res.json(restaurants)
+    }catch(err){
+        res.status(500).json({message: err.message})
+    }
+}
+
 exports.getRestaurantById = async(req,res) =>{
     try{
         // const restaurant = await Restaurant.findById(req.params.id)

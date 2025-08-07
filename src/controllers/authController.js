@@ -13,11 +13,11 @@ const generateRefreshToken = (id) => {
 
 exports.register = async(req,res) =>{
     try {
-        const {name, email, password, role} = req.body
+        const {name, email, password, role, status, location} = req.body
         const exists = await User.findOne({email})
         if (exists) return res.status(400).json({message: 'user exists'})
 
-        const user = await User.create({name, email, password, role})
+        const user = await User.create({name, email, password, role, status, location})
         const accessToken = generateAccessToken(user._id, user.role)
         const refreshToken = generateRefreshToken(user._id)
 
@@ -35,6 +35,7 @@ exports.register = async(req,res) =>{
             _id: user._id,
             name: user.name,
             role: user.role,
+            location: user.location,
             accessToken
         })
     }catch(err) {
@@ -137,13 +138,22 @@ exports.getUser = async(req,res) =>{
     // const user = await User.findById(req.params.id).select('-password')
     // await redis.setex(res.locals.cacheKey, 1800, JSON.stringify(user))
     
-    const user = await CacheService.getOrSet(
-        `usr:${req.params.id}`,
+    const user = await CacheService.getOrSetAutoHotness(
+        `user:${req.params.id}`,
         1800,
         () => User.findById(req.params.id).select('-password')
     )
     
     res.json(user)
+}
+
+exports.getAllUsers = async(req,res) =>{
+    const users = await CacheService.getOrSetAutoHotness(
+        `users:all`,
+        1800,
+        () => User.find().select('-password')
+    )
+    res.json(users)
 }
 
 exports.updateUser = async(req,res) =>{
